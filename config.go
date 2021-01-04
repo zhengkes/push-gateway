@@ -33,7 +33,7 @@ func isFile(fp string) bool {
 	return !f.IsDir()
 }
 
-func Parse(confs ...string) error {
+func parse(confs ...string) error {
 	if len(confs) == 0 {
 		viper.SetConfigType("yaml")
 		viper.SetDefault("remote.addresses", []string{"10.160.0.173:5811"})

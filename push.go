@@ -27,12 +27,6 @@ func rpcPush(addrs []string, metricItems []*metricValue) error {
 			fmt.Println("数据有问题:", err)
 			continue
 		}
-		if item.CounterType == counter {
-			if err := counterToGauge(item); err != nil {
-				fmt.Println("转化失败:", err)
-				continue
-			}
-		}
 		items = append(items, item)
 	}
 
@@ -62,31 +56,10 @@ func rpcPush(addrs []string, metricItems []*metricValue) error {
 
 	return err
 }
-func counterToGauge(item *metricValue) error {
-	key := item.PK()
 
-	old, exists := metricHistory.Get(key)
-	metricHistory.Set(key, *item)
 
-	if !exists {
-		return fmt.Errorf("not found old item:%v", item)
-	}
-
-	if old.Value > item.Value {
-		return fmt.Errorf("item:%v old value:%v greater than new value:%v", item, old.Value, item.Value)
-	}
-
-	if old.Timestamp >= item.Timestamp {
-		return fmt.Errorf("item:%v old timestamp:%v greater than new timestamp:%v", item, old.Timestamp, item.Timestamp)
-	}
-
-	item.ValueUntyped = (item.Value - old.Value) / float64(item.Timestamp-old.Timestamp)
-	item.CounterType = gauge
-	return nil
-}
-
-func rpcCall(addr string, items []*metricValue) (TransferResp, error) {
-	var reply TransferResp
+func rpcCall(addr string, items []*metricValue) (transferResp, error) {
+	var reply transferResp
 	var err error
 
 	client := rpcClients.Get(addr)
@@ -149,14 +122,14 @@ func rpcClient(addr string) (*rpc.Client, error) {
 	return client, nil
 }
 
-type TransferResp struct {
+type transferResp struct {
 	Msg     string
 	Total   int
 	Invalid int
 	Latency int64
 }
 
-func (t *TransferResp) String() string {
+func (t *transferResp) String() string {
 	s := fmt.Sprintf("TransferResp total=%d, err_invalid=%d, latency=%dms",
 		t.Total, t.Invalid, t.Latency)
 	if t.Msg != "" {

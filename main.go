@@ -14,7 +14,6 @@ func main() {
 		return
 	}
 	go generateNum()
-	go add()
 	select {}
 }
 
@@ -27,12 +26,3 @@ func generateNum() {
 	}
 }
 
-func add() {
-	var s = 0
-	for {
-		time.Sleep(5 * time.Second)
-		s += 2
-		Counter.Set("counter.value", s)
-		fmt.Println("counter.value 推送完成")
-	}
-}
