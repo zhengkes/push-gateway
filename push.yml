@@ -1,0 +1,5 @@
+remote:
+  addresses:
+    - 10.160.0.173:5811
+  ident: 10.160.0.173
+duration: 100
