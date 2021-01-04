@@ -69,22 +69,22 @@ func Init(params ...string) error {
 			return err
 		}
 	}
-	//初始化rpc和本地缓存,保存counter类型,转化为gauge类型
 	once.Do(func() {
 		initRpcClients()
 	})
 	Gauge = newGauge(prefix)
-	go cron()
+
+	go func() {
+		t1 := time.NewTicker(time.Duration(config.Duration) * time.Second)
+		for {
+			<-t1.C
+			gauges := Gauge.dump()
+			push(gauges)
+		}
+	}()
 	return nil
 }
-func cron() {
-	t1 := time.NewTicker(time.Duration(config.Duration) * time.Second)
-	for {
-		<-t1.C
-		gauges := Gauge.dump()
-		push(gauges)
-	}
-}
+
 func push(items []*metricValue) {
 	if err := rpcPush(config.Remote.Addresses, items); err != nil {
 		return
