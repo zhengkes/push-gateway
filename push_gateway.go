@@ -1,4 +1,4 @@
-package main
+package push
 
 import (
 	"fmt"
@@ -24,7 +24,7 @@ func newGauge(prefix string) *gaugeMetric {
 	}
 }
 
-//tags:xxx=xxx
+//tags:aa=bb,cc=dd,ee=ff
 func (g *gaugeMetric) Set(ident, metric string, val interface{}, tags ...string) {
 	g.Lock()
 	defer g.Unlock()
